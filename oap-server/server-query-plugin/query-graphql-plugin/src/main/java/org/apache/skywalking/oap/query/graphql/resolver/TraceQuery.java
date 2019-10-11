@@ -22,6 +22,7 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.google.common.base.Strings;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.oap.query.graphql.type.ListTraceIdCondition;
 import org.apache.skywalking.oap.query.graphql.type.TraceQueryCondition;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.query.*;
@@ -79,4 +80,47 @@ public class TraceQuery implements GraphQLQueryResolver {
     public Trace queryTrace(final String traceId) throws IOException {
         return getQueryService().queryTrace(traceId);
     }
+
+    /**
+     * start--modify by lyy
+     */
+    public SegmentAggBrief querySegments(final TraceQueryCondition condition) throws IOException {
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        String traceId = Const.EMPTY_STRING;
+
+        if (!Strings.isNullOrEmpty(condition.getTraceId())) {
+            traceId = condition.getTraceId();
+        } else if (nonNull(condition.getQueryDuration())) {
+            startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
+            endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
+        } else {
+            throw new UnexpectedException("The condition must contains either queryDuration or traceId.");
+        }
+
+        int minDuration = condition.getMinTraceDuration();
+        int maxDuration = condition.getMaxTraceDuration();
+        String endpointName = condition.getEndpointName();
+        int serviceId = StringUtils.isEmpty(condition.getServiceId()) ? 0 : Integer.parseInt(condition.getServiceId());
+        int endpointId = StringUtils.isEmpty(condition.getEndpointId()) ? 0 : Integer.parseInt(condition.getEndpointId());
+        int serviceInstanceId = StringUtils.isEmpty(condition.getServiceInstanceId()) ? 0 : Integer.parseInt(condition.getServiceInstanceId());
+        TraceState traceState = condition.getTraceState();
+        QueryOrder queryOrder = condition.getQueryOrder();
+        Pagination pagination = condition.getPaging();
+        return getQueryService().querySegments(serviceId, serviceInstanceId, endpointId, traceId, endpointName, minDuration, maxDuration, traceState, queryOrder, pagination, startSecondTB, endSecondTB);
+    }
+
+    public ListTraces queryTraces(final ListTraceIdCondition condition) throws IOException {
+
+        ListTraces listTraces = new ListTraces();
+        for (String traceId:condition.getTraceIds())
+        {
+            Trace trace = queryTrace(traceId);
+            listTraces.getTraces().add(trace);
+        }
+        listTraces.setTotal(listTraces.getTraces().size());
+        return listTraces;
+    }
+    // end--modify by lyy
+
 }

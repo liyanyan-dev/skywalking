@@ -32,6 +32,13 @@ public interface ITraceQueryDAO extends Service {
     TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration,
         long maxDuration, String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
         int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException;
+    /**
+     * start--modify by lyy
+     */
+    SegmentAggBrief querySegments(long startSecondTB, long endSecondTB, long minDuration,
+                                long maxDuration, String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
+                                int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException;
+    // end--modify by lyy
 
     List<SegmentRecord> queryByTraceId(String traceId) throws IOException;
 

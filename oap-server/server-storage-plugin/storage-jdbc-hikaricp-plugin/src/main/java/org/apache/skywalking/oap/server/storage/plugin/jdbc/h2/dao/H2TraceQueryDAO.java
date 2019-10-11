@@ -132,6 +132,11 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         return traceBrief;
     }
 
+    @Override
+    public SegmentAggBrief querySegments(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException {
+        return null;
+    }
+
     protected String buildCountStatement(String sql) {
         return "select count(1) total from (select 1 " + sql + " )";
     }

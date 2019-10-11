@@ -16,13 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.entity;
+package org.apache.skywalking.oap.query.graphql.type;
+
+import lombok.Getter;
+import lombok.Setter;
+import java.util.List;
 
 /**
- * @author peng-yongsheng
- */
-public enum QueryOrder {
-    BY_START_TIME,
-    BY_DURATION,
-    BY_END_TIME
+ * @author: Liyanyan
+ **/
+
+@Getter
+@Setter
+public class ListTraceIdCondition {
+    private List<String> traceIds;
 }

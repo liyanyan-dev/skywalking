@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -30,6 +31,13 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.*;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.max.Max;
+import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -123,6 +131,119 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
         return traceBrief;
     }
+
+    @Override
+    public SegmentAggBrief querySegments(long startSecondTB, long endSecondTB, long minDuration,
+                                       long maxDuration, String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
+                                       int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
+
+        if (startSecondTB != 0 && endSecondTB != 0) {
+            mustQueryList.add(QueryBuilders.rangeQuery(SegmentRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
+        }
+
+        if (minDuration != 0 || maxDuration != 0) {
+            RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(SegmentRecord.LATENCY);
+            if (minDuration != 0) {
+                rangeQueryBuilder.gte(minDuration);
+            }
+            if (maxDuration != 0) {
+                rangeQueryBuilder.lte(maxDuration);
+            }
+            boolQueryBuilder.must().add(rangeQueryBuilder);
+        }
+
+        if (!Strings.isNullOrEmpty(endpointName)) {
+            String matchCName = MatchCNameBuilder.INSTANCE.build(SegmentRecord.ENDPOINT_NAME);
+            mustQueryList.add(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
+        }
+        if (serviceId != 0) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
+        }
+        if (serviceInstanceId != 0) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+        }
+        if (endpointId != 0) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.ENDPOINT_ID, endpointId));
+        }
+        if (!Strings.isNullOrEmpty(traceId)) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
+        }
+        switch (traceState) {
+            case ERROR:
+                mustQueryList.add(QueryBuilders.matchQuery(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
+                break;
+            case SUCCESS:
+                mustQueryList.add(QueryBuilders.matchQuery(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
+                break;
+        }
+
+        boolean asc = false;
+        String orderName = "";
+        AggregationBuilder subAggregationBuilder = null;
+
+        switch (queryOrder) {
+            case BY_START_TIME:
+                asc = true;
+                orderName = SegmentRecord.START_TIME;
+                subAggregationBuilder = AggregationBuilders.min(orderName).field(orderName);
+                break;
+            case BY_END_TIME:
+                asc = false;
+                orderName = SegmentRecord.END_TIME;
+                subAggregationBuilder = AggregationBuilders.max(orderName).field(orderName);
+                break;
+            case BY_DURATION:
+                asc = false;
+                orderName = SegmentRecord.LATENCY;
+                subAggregationBuilder = AggregationBuilders.max(orderName).field(orderName);
+                break;
+        }
+
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders
+            .terms(SegmentRecord.TRACE_ID)
+            .field(SegmentRecord.TRACE_ID)
+            .order(BucketOrder.aggregation(orderName, asc))
+            .size(limit)
+            .subAggregation(subAggregationBuilder);
+
+        sourceBuilder.size(0);
+        sourceBuilder.from(0);
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.aggregation(aggregationBuilder);
+
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        SegmentAggBrief segmentAggBrief = new SegmentAggBrief();
+        Terms idTerms = response.getAggregations().get(SegmentRecord.TRACE_ID);
+
+        segmentAggBrief.setTotal(idTerms.getBuckets().size());
+        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
+            SegmentAggRecord record = new SegmentAggRecord();
+            record.setTraceId(termsBucket.getKeyAsString());
+            switch (queryOrder) {
+                case BY_START_TIME:
+                    Min minValue = termsBucket.getAggregations().get(orderName);
+                    record.setStartTime((long)minValue.getValue());
+                    break;
+                case BY_END_TIME:
+                    Max maxValue = termsBucket.getAggregations().get(orderName);
+                    record.setEndTime((long)maxValue.getValue());
+                    break;
+                case BY_DURATION:
+                    Max durationMaxValue = termsBucket.getAggregations().get(orderName);
+                    record.setDuration((int)durationMaxValue.getValue());
+                    break;
+            }
+            segmentAggBrief.getRecords().add(record);
+        }
+
+
+        return segmentAggBrief;
+    }
+
 
     @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();

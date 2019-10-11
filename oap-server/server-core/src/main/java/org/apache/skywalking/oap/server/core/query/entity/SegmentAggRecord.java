@@ -15,14 +15,20 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.oap.server.core.query.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
- * @author peng-yongsheng
- */
-public enum QueryOrder {
-    BY_START_TIME,
-    BY_DURATION,
-    BY_END_TIME
+ * @author: Liyanyan
+ **/
+
+@Getter
+@Setter
+public class SegmentAggRecord {
+    private String traceId;
+    private int duration;
+    private long startTime;
+    private long endTime;
 }

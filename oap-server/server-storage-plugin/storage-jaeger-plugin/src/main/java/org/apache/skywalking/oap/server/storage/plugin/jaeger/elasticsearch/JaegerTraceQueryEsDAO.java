@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jaeger.elasticsearch;
 import com.google.common.base.Strings;
 import com.google.protobuf.ByteString;
 import io.jaegertracing.api_v2.Model;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.*;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
@@ -35,14 +32,26 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.*;
-import org.elasticsearch.search.aggregations.bucket.terms.*;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
 import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.*;
@@ -143,6 +152,11 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
 
         return traceBrief;
+    }
+
+    @Override
+    public SegmentAggBrief querySegments(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException {
+        return null;
     }
 
     @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {

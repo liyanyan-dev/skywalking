@@ -15,14 +15,25 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.oap.server.core.query.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * @author peng-yongsheng
- */
-public enum QueryOrder {
-    BY_START_TIME,
-    BY_DURATION,
-    BY_END_TIME
+ * @author: Liyanyan
+ **/
+
+@Getter
+public class ListTraces {
+    private final List<Trace> traces;
+    @Setter
+    private int total;
+
+    public ListTraces() {
+        this.traces = new ArrayList<>();
+    }
 }

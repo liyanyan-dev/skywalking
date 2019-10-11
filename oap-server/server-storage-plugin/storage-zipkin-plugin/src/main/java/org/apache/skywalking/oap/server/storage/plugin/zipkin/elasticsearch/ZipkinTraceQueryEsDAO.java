@@ -144,6 +144,11 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         return traceBrief;
     }
 
+    @Override
+    public SegmentAggBrief querySegments(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException {
+        return null;
+    }
+
     @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         return Collections.emptyList();
     }
