@@ -385,7 +385,7 @@ public class ElasticSearchClient implements Client {
             .setBulkActions(bulkActions)
             .setFlushInterval(TimeValue.timeValueSeconds(flushInterval))
             .setConcurrentRequests(concurrentRequests)
-            .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
+            .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(50), 8))
             .build();
     }
 

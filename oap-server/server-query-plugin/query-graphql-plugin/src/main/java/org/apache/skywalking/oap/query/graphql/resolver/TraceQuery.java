@@ -81,6 +81,12 @@ public class TraceQuery implements GraphQLQueryResolver {
         return getQueryService().queryTrace(traceId);
     }
 
+    public Version queryVersion() throws IOException {
+        Version version = new Version();
+        version.setVersion("v6.4.1");
+        return version;
+    }
+
     /**
      * start--modify by lyy
      */
