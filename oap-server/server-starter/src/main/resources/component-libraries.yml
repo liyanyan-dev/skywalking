@@ -233,6 +233,22 @@ spring-webflux:
 Play:
   id: 68
   languages: Java,Scala
+ASDK-HTTP:
+  id: 69
+  languages: Java
+AFA-ABUS:
+  id: 70
+  languages: Java
+AFA-HTTP:
+  id: 71
+  languages: Java
+AFA-RPC:
+  id: 72
+  languages: Java
+AFA-NATP:
+  id: 73
+  languages: Java
+
 
 
 # .NET/.NET Core components
