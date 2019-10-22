@@ -132,4 +132,14 @@ public class ComponentsDefine {
 
     public static final OfficialComponent PLAY = new OfficialComponent(68, "Play");
 
+    public static final OfficialComponent ASDK_HTTP = new OfficialComponent(69, "ASDK-HTTP");
+
+    public static final OfficialComponent AFA_ABUS = new OfficialComponent(70, "AFA-ABUS");
+
+    public static final OfficialComponent AFA_HTTP = new OfficialComponent(71, "AFA-HTTP");
+
+    public static final OfficialComponent AFA_RPC = new OfficialComponent(72, "AFA-RPC");
+
+    public static final OfficialComponent AFA_NATP = new OfficialComponent(73, "AFA-NATP");
+
 }
