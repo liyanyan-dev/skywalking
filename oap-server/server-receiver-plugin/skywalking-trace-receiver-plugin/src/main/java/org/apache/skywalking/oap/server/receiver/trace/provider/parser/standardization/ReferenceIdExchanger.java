@@ -22,7 +22,6 @@ import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.service.*;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
 import org.slf4j.*;
@@ -118,13 +117,6 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
      * If agent does the exchange, then always use endpoint id.
      */
     private int getEndpointId(int serviceId, String endpointName) {
-        int endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.SERVER.ordinal());
-        if (endpointId == Const.NONE) {
-            endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.CLIENT.ordinal());
-            if (endpointId == Const.NONE) {
-                endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.UNRECOGNIZED.ordinal());
-            }
-        }
-        return endpointId;
+        return endpointInventoryRegister.mGet(serviceId, endpointName);
     }
 }

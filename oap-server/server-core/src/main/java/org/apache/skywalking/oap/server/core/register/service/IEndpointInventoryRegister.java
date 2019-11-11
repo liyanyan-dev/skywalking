@@ -30,5 +30,9 @@ public interface IEndpointInventoryRegister extends Service {
 
     int get(int serviceId, String endpointName, int detectPoint);
 
+    default int mGet(int serviceId, String endpointName) {
+        return 0;
+    }
+
     void heartbeat(int endpointId, long heartBeatTime);
 }

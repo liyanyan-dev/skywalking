@@ -110,6 +110,16 @@ public class Config {
          * Limit the length of the operationName to prevent errors when inserting elasticsearch
          **/
         public static int OPERATION_NAME_THRESHOLD = 500;
+
+        /**
+         * segment consum thread pool size of agent,be used to send segment to collect
+         **/
+        public static int SEGMENT_CONSUMER_THREAD_POOL_SIZE = 1;
+
+        /**
+         * segment consum thread max wait time.unit is ms.
+         **/
+        public static int MAX_WAIT_TIME = 60;
     }
 
     public static class Collector {
@@ -125,6 +135,10 @@ public class Config {
          * Collector skywalking trace receiver service addresses.
          */
         public static String BACKEND_SERVICE = "";
+        /**
+         * How long grpc client will timeout in sending data to upstream.
+         */
+        public static int GRPC_UPSTREAM_TIMEOUT = 10;
     }
 
     public static class Jvm {

@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.agree.SegmentThreadPoolExecutor;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParseV2;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentSource;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -31,18 +32,25 @@ import org.apache.skywalking.oap.server.telemetry.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutorService;
+
 public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase implements GRPCHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentReportServiceHandler.class);
 
     private final SegmentParseV2.Producer segmentProducer;
     private HistogramMetrics histogram;
-
+    private ExecutorService pool;
+    private int queueSize;
     public TraceSegmentReportServiceHandler(SegmentParseV2.Producer segmentProducer, ModuleManager moduleManager) {
         this.segmentProducer = segmentProducer;
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric("trace_grpc_v6_in_latency", "The process latency of service mesh telemetry",
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        SegmentThreadPoolExecutor executor =  new SegmentThreadPoolExecutor(moduleManager);
+        executor.init();
+        pool =  executor.getSegmentThreadPoolExecutor();
+        queueSize = 0;
     }
 
     @Override public StreamObserver<UpstreamSegment> collect(StreamObserver<Commands> responseObserver) {
@@ -51,10 +59,19 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                 if (logger.isDebugEnabled()) {
                     logger.debug("receive segment");
                 }
-
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
-                    segmentProducer.send(segment, SegmentSource.Agent);
+
+                    pool.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            segmentProducer.send(segment, SegmentSource.Agent);
+                        }
+                    });
+                    if (logger.isInfoEnabled() && ((queueSize++) >= 50000)) {
+                        logger.info("executor:{}",pool);
+                        queueSize = 0;
+                    }
                 } finally {
                     timer.finish();
                 }

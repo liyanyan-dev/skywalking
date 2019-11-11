@@ -30,10 +30,12 @@ public class ConfigService implements Service {
     private final String gRPCHost;
     private final int gRPCPort;
     private final DataTTLConfig dataTTLConfig;
+    private final SegmentThreadConfig segmentThreadConfig;
 
     public ConfigService(CoreModuleConfig moduleConfig) {
         this.gRPCHost = moduleConfig.getGRPCHost();
         this.gRPCPort = moduleConfig.getGRPCPort();
         this.dataTTLConfig = moduleConfig.getDataTTL();
+        segmentThreadConfig = moduleConfig.getSegmentThreadConfig();
     }
 }

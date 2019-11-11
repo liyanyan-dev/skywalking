@@ -72,6 +72,10 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
         return getCacheService().getEndpointId(serviceId, endpointName, detectPoint);
     }
 
+    @Override public int mGet(int serviceId, String endpointName) {
+        return getCacheService().getEndpointId(serviceId, endpointName);
+    }
+
     @Override public void heartbeat(int endpointId, long heartBeatTime) {
         EndpointInventory endpointInventory = getCacheService().get(endpointId);
         if (Objects.nonNull(endpointInventory)) {

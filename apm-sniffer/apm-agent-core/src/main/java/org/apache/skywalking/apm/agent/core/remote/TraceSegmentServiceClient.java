@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.skywalking.apm.agent.core.boot.*;
 import org.apache.skywalking.apm.agent.core.commands.CommandService;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.*;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.api.*;
@@ -35,7 +36,6 @@ import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.language.agent.*;
 import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Buffer.*;
 import static org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONNECTED;
 
 /**
@@ -44,7 +44,7 @@ import static org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONN
 @DefaultImplementor
 public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSegment>, TracingContextListener, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(TraceSegmentServiceClient.class);
-    private static final int TIMEOUT = 30 * 1000;
+    private static final int PRINT_TIME = 3 * 1000;
 
     private long lastLogTime;
     private long segmentUplinkedCounter;
@@ -63,9 +63,9 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
         lastLogTime = System.currentTimeMillis();
         segmentUplinkedCounter = 0;
         segmentAbandonedCounter = 0;
-        carrier = new DataCarrier<TraceSegment>(CHANNEL_SIZE, BUFFER_SIZE);
+        carrier = new DataCarrier<TraceSegment>(Config.Buffer.CHANNEL_SIZE, Config.Buffer.BUFFER_SIZE);
         carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
-        carrier.consume(this, 1);
+        carrier.consume(this, Config.Agent.SEGMENT_CONSUMER_THREAD_POOL_SIZE);
     }
 
     @Override
@@ -86,9 +86,10 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     @Override
     public void consume(List<TraceSegment> data) {
+        long callStart = System.currentTimeMillis();
         if (CONNECTED.equals(status)) {
             final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
-            StreamObserver<UpstreamSegment> upstreamSegmentStreamObserver = serviceStub.withDeadlineAfter(10, TimeUnit.SECONDS).collect(new StreamObserver<Commands>() {
+            StreamObserver<UpstreamSegment> upstreamSegmentStreamObserver = serviceStub.withDeadlineAfter(Config.Collector.GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).collect(new StreamObserver<Commands>() {
                 @Override
                 public void onNext(Commands commands) {
                     ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
@@ -96,10 +97,8 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
                 @Override
                 public void onError(Throwable throwable) {
+                    logger.error(throwable, "Send UpstreamSegment to collector fail with a grpc internal exception.");
                     status.finished();
-                    if (logger.isErrorEnable()) {
-                        logger.error(throwable, "Send UpstreamSegment to collector fail with a grpc internal exception.");
-                    }
                     ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(throwable);
                 }
 
@@ -119,27 +118,29 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
             }
 
             upstreamSegmentStreamObserver.onCompleted();
-
-            status.wait4Finish();
+            if (Config.Agent.MAX_WAIT_TIME > 0) {
+                status.wait4Finish(Config.Agent.MAX_WAIT_TIME);
+            } else {
+                status.wait4Finish();
+            }
             segmentUplinkedCounter += data.size();
         } else {
             segmentAbandonedCounter += data.size();
         }
 
-        printUplinkStatus();
+        long callEnd = System.currentTimeMillis();
+        printUplinkStatus(callStart,callEnd,data.size());
     }
 
-    private void printUplinkStatus() {
+    private void printUplinkStatus(long startTime,long endTime,long size) {
         long currentTimeMillis = System.currentTimeMillis();
-        if (currentTimeMillis - lastLogTime > 30 * 1000) {
+        if (currentTimeMillis - lastLogTime > PRINT_TIME) {
             lastLogTime = currentTimeMillis;
-            if (segmentUplinkedCounter > 0) {
-                logger.debug("{} trace segments have been sent to collector.", segmentUplinkedCounter);
-                segmentUplinkedCounter = 0;
-            }
-            if (segmentAbandonedCounter > 0) {
-                logger.debug("{} trace segments have been abandoned, cause by no available channel.", segmentAbandonedCounter);
-                segmentAbandonedCounter = 0;
+            if (logger.isInfoEnable()) {
+                if (segmentAbandonedCounter > 0) {
+                    logger.info("{} trace segments have been abandoned, cause by no available channel.", segmentAbandonedCounter);
+                }
+                logger.info("Duration:{},Send list:{},Total trace segments:{},Thread name:{}", endTime - startTime, size,segmentUplinkedCounter, Thread.currentThread().getName());
             }
         }
     }
@@ -160,8 +161,8 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
             return;
         }
         if (!carrier.produce(traceSegment)) {
-            if (logger.isDebugEnable()) {
-                logger.debug("One trace segment has been abandoned, cause by buffer is full.");
+            if (logger.isErrorEnable()) {
+                logger.error(String.format("One trace segment (%s:%s) has been abandoned, cause by buffer is full.",traceSegment.getRelatedGlobalTraces().get(0).toString(),traceSegment.getTraceSegmentId().toString()));
             }
         }
     }

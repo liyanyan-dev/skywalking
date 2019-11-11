@@ -65,7 +65,7 @@ public class ConsumerThread<T> extends Thread {
     public void run() {
         running = true;
 
-        final List<T> consumeList = new ArrayList<T>(1500);
+        final List<T> consumeList = new ArrayList<T>(20000);
         while (running) {
             if (!consume(consumeList)) {
                 try {

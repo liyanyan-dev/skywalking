@@ -53,19 +53,6 @@ public class Buffer<T> {
         if (buffer[i] != null) {
             switch (strategy) {
                 case BLOCKING:
-                    boolean isFirstTimeBlocking = true;
-                    while (buffer[i] != null) {
-                        if (isFirstTimeBlocking) {
-                            isFirstTimeBlocking = false;
-                            for (QueueBlockingCallback<T> callback : callbacks) {
-                                callback.notify(data);
-                            }
-                        }
-                        try {
-                            Thread.sleep(1L);
-                        } catch (InterruptedException e) {
-                        }
-                    }
                     break;
                 case IF_POSSIBLE:
                     return false;

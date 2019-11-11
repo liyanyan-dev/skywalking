@@ -16,28 +16,17 @@
  *
  */
 
+package org.apache.skywalking.oap.server.core;
 
-package org.apache.skywalking.apm.commons.datacarrier.partition;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * use normal int to rolling.
- *
- *
- * Created by wusheng on 2016/10/25.
+ * @author peng-yongsheng
  */
-public class SimpleRollingPartitioner<T> implements IDataPartitioner<T> {
-    private volatile int i = 0;
-
-    @Override
-    public int partition(int total, T data) {
-        if (i == Integer.MAX_VALUE - 1) {
-            i = 0;
-        }
-        return Math.abs(i++ % total);
-    }
-
-    @Override
-    public int maxRetryCount() {
-        return 3;
-    }
+@Setter
+@Getter
+public class SegmentThreadConfig {
+    private int segmentThreadPoolSize;
+    private int segmentQueueSize;
 }

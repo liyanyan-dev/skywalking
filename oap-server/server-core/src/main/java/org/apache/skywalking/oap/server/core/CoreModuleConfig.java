@@ -52,7 +52,8 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private int monthMetricsDataTTL;
     @Setter private int gRPCThreadPoolSize;
     @Setter private int gRPCThreadPoolQueueSize;
-
+    @Setter private int segmentThreadPoolSize;
+    @Setter private int segmentQueueSize;
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
@@ -65,6 +66,13 @@ public class CoreModuleConfig extends ModuleConfig {
         dataTTLConfig.setDayMetricsDataTTL(dayMetricsDataTTL);
         dataTTLConfig.setMonthMetricsDataTTL(monthMetricsDataTTL);
         return dataTTLConfig;
+    }
+
+    public SegmentThreadConfig getSegmentThreadConfig() {
+        SegmentThreadConfig segmentThreadConfig = new SegmentThreadConfig();
+        segmentThreadConfig.setSegmentThreadPoolSize(segmentThreadPoolSize);
+        segmentThreadConfig.setSegmentQueueSize(segmentQueueSize);
+        return segmentThreadConfig;
     }
 
     public enum Role {

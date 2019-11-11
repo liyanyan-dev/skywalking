@@ -49,15 +49,15 @@ core:
     # Receiver: Receive agent data, Level 1 aggregate
     # Aggregator: Level 2 aggregate
     role: ${SW_CORE_ROLE:Mixed} # Mixed/Receiver/Aggregator
-    restHost: ${SW_CORE_REST_HOST:0.0.0.0}
+    restHost: ${SW_CORE_REST_HOST:127.0.0.1}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
-    gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
+    gRPCHost: ${SW_CORE_GRPC_HOST:127.0.0.1}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
-    downsampling:
-      - Hour
-      - Day
-      - Month
+    # downsampling:
+    #   - Hour
+    #   - Day
+    #   - Month
     # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
     enableDataKeeperExecutor: ${SW_CORE_ENABLE_DATA_KEEPER_EXECUTOR:true} # Turn it off then automatically metrics data delete will be close.
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:90} # Unit is minute
@@ -68,10 +68,13 @@ core:
     # Cache metric data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
     # the metrics may not be accurate within that minute.
     enableDatabaseSession: ${SW_CORE_ENABLE_DATABASE_SESSION:true}
+    gRPCThreadPoolSize: 1
+    gRPCThreadPoolQueueSize: 10000
+    maxConcurrentCallsPerConnection: 4
 storage:
   elasticsearch:
-    nameSpace: ${SW_NAMESPACE:""}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    nameSpace: ${SW_NAMESPACE:"test_sw"}
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:10.9.1.17:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     #trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:"../es_keystore.jks"}
     #trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
@@ -89,11 +92,11 @@ storage:
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
-#  h2:
-#    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
-#    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
-#    user: ${SW_STORAGE_H2_USER:sa}
-#    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+  #h2:
+  #  driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
+  #  url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
+  #  user: ${SW_STORAGE_H2_USER:sa}
+  #  metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 #  mysql:
 #    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 receiver-sharing-server:
