@@ -83,7 +83,8 @@ public class TraceQuery implements GraphQLQueryResolver {
 
     public Version queryVersion() throws IOException {
         Version version = new Version();
-        version.setVersion("v6.4.1");
+        // version.setVersion("v6.4.1");
+        version.setVersion("v6.4.1.patch01");  // fix afa can't exit bug
         return version;
     }
 

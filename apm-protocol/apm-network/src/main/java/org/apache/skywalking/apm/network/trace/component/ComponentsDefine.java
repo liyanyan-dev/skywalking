@@ -140,6 +140,30 @@ public class ComponentsDefine {
 
     public static final OfficialComponent AFA_RPC = new OfficialComponent(72, "AFA-RPC");
 
-    public static final OfficialComponent AFA_NATP = new OfficialComponent(73, "AFA-NATP");
+    public static final OfficialComponent AFA_ACTIVEMQ = new OfficialComponent(73, "AFA-ACTIVEMQ");
+
+    public static final OfficialComponent AFA_AFT = new OfficialComponent(74, "AFA-AFT");
+
+    public static final OfficialComponent AFA_AIMLSR = new OfficialComponent(75, "AFA-AIMLSR");
+
+    public static final OfficialComponent AFA_ROCKETMQ = new OfficialComponent(76, "AFA-ROCKETMQ");
+
+    public static final OfficialComponent AFA_CMC = new OfficialComponent(77, "AFA-CMC");
+
+    public static final OfficialComponent AFA_WS = new OfficialComponent(78, "AFA-WS");
+
+    public static final OfficialComponent AFA_KAFKA = new OfficialComponent(79, "AFA-KAFKA");
+
+    public static final OfficialComponent AFA_SOCKET = new OfficialComponent(80, "AFA-SOCKET");
+
+    public static final OfficialComponent AFA_JMQ = new OfficialComponent(81, "AFA-JMQ");
+
+    public static final OfficialComponent AFA_RABBITMQ = new OfficialComponent(82, "AFA-RABBITMQ");
+
+    public static final OfficialComponent AFA_REPLY = new OfficialComponent(83, "AFA-REPLY");
+
+    public static final OfficialComponent AFA_WEBSOCKET = new OfficialComponent(84, "AFA-WEBSOCKET");
+
+    public static final OfficialComponent AFA_SCHEDULE = new OfficialComponent(85, "AFA-SCHEDULE");
 
 }

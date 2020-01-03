@@ -245,8 +245,44 @@ AFA-HTTP:
 AFA-RPC:
   id: 72
   languages: Java
-AFA-NATP:
+AFA-ACTIVEMQ:
   id: 73
+  languages: Java
+AFA-AFT:
+  id: 74
+  languages: Java
+AFA-AIMLSR:
+  id: 75
+  languages: Java
+AFA-ROCKETMQ:
+  id: 76
+  languages: Java
+AFA-CMC:
+  id: 77
+  languages: Java
+AFA-WS:
+  id: 78
+  languages: Java
+AFA-KAFKA:
+  id: 79
+  languages: Java
+AFA-SOCKET:
+  id: 80
+  languages: Java
+AFA-JMQ:
+  id: 81
+  languages: Java
+AFA-RABBITMQ:
+  id: 82
+  languages: Java
+AFA-REPLY:
+  id: 83
+  languages: Java
+AFA-WEBSOCKET:
+  id: 84
+  languages: Java
+AFA-SCHEDULE:
+  id: 85
   languages: Java
 
 

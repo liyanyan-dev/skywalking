@@ -147,6 +147,7 @@ class TopologyBuilder {
 
             if (!nodes.containsKey(source.getSequence())) {
                 nodes.put(source.getSequence(), buildNode(source));
+                // need set component info,because not all request start entry span --lyy
             }
 
             if (!nodes.containsKey(target.getSequence())) {

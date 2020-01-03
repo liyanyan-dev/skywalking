@@ -112,20 +112,20 @@ receiver-trace:
     bufferFileCleanWhenRestart: ${SW_RECEIVER_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
     sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
     slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
-receiver-jvm:
-  default:
-receiver-clr:
-  default:
-service-mesh:
-  default:
-    bufferPath: ${SW_SERVICE_MESH_BUFFER_PATH:../mesh-buffer/}  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: ${SW_SERVICE_MESH_OFFSET_MAX_FILE_SIZE:100} # Unit is MB
-    bufferDataMaxFileSize: ${SW_SERVICE_MESH_BUFFER_DATA_MAX_FILE_SIZE:500} # Unit is MB
-    bufferFileCleanWhenRestart: ${SW_SERVICE_MESH_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
-istio-telemetry:
-  default:
-envoy-metric:
-  default:
+#receiver-jvm:
+#  default:
+#receiver-clr:
+#  default:
+#service-mesh:
+#  default:
+#    bufferPath: ${SW_SERVICE_MESH_BUFFER_PATH:../mesh-buffer/}  # Path to trace buffer files, suggest to use absolute path
+#    bufferOffsetMaxFileSize: ${SW_SERVICE_MESH_OFFSET_MAX_FILE_SIZE:100} # Unit is MB
+#    bufferDataMaxFileSize: ${SW_SERVICE_MESH_BUFFER_DATA_MAX_FILE_SIZE:500} # Unit is MB
+#    bufferFileCleanWhenRestart: ${SW_SERVICE_MESH_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
+#istio-telemetry:
+#  default:
+#envoy-metric:
+#  default:
 #    alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:k8s-mesh}
 #receiver_zipkin:
 #  default:
@@ -137,8 +137,17 @@ query:
     path: ${SW_QUERY_GRAPHQL_PATH:/graphql}
 alarm:
   default:
-telemetry:
-  none:
+telemetry: ##遥测指标数据(与Prometheus配合使用，数据格式也未Prometheus指标格式)
+  none:   ## none 表示对收集的指标数据不做处理
+  #prometheus:  ##将埋点检测指标推送到rometheus
+  #  host: 0.0.0.0
+  #  port: 1234
+  #so11y:  #不与receiver-so11y搭配使用时，与Prometheus完全相同
+  #  prometheusExporterEnabled: true
+  #  prometheusExporterHost: 0.0.0.0
+  #  prometheusExporterPort: 1234
+#receiver-so11y: # 与telemetry中的so11y搭配，可以将so11y推送至Prometheus的指标数据
+#  default:      # 拉取下来，并写入oap后端的es
 configuration:
   none:
 #  nacos:

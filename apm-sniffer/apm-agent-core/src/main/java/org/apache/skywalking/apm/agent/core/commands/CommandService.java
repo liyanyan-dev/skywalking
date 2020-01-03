@@ -19,6 +19,7 @@ package org.apache.skywalking.apm.agent.core.commands;
 
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
+import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -34,13 +35,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+
 @DefaultImplementor
 public class CommandService implements BootService, Runnable {
 
     private static final ILog LOGGER = LogManager.getLogger(CommandService.class);
 
     private volatile boolean isRunning = true;
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService = Executors.newSingleThreadExecutor(new DefaultNamedThreadFactory("CommandService"));
     private LinkedBlockingQueue<BaseCommand> commands = new LinkedBlockingQueue<BaseCommand>(64);
     private CommandSerialNumberCache serialNumberCache = new CommandSerialNumberCache();
 

@@ -49,10 +49,10 @@ core:
     # Receiver: Receive agent data, Level 1 aggregate
     # Aggregator: Level 2 aggregate
     role: ${SW_CORE_ROLE:Mixed} # Mixed/Receiver/Aggregator
-    restHost: ${SW_CORE_REST_HOST:127.0.0.1}
+    restHost: ${SW_CORE_REST_HOST:10.9.1.10}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
-    gRPCHost: ${SW_CORE_GRPC_HOST:127.0.0.1}
+    gRPCHost: ${SW_CORE_GRPC_HOST:10.9.1.10}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     # downsampling:
     #   - Hour
@@ -73,8 +73,8 @@ core:
     maxConcurrentCallsPerConnection: 4
 storage:
   elasticsearch:
-    nameSpace: ${SW_NAMESPACE:"test_sw"}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:10.9.1.17:9200}
+    nameSpace: ${SW_NAMESPACE:"lyy_test"}
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:10.9.1.33:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     #trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:"../es_keystore.jks"}
     #trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
