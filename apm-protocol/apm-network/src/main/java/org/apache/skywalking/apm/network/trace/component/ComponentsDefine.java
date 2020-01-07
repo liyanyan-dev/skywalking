@@ -166,4 +166,6 @@ public class ComponentsDefine {
 
     public static final OfficialComponent AFA_SCHEDULE = new OfficialComponent(85, "AFA-SCHEDULE");
 
+    public static final OfficialComponent AFA_INTERNAL = new OfficialComponent(86, "AFA-INTERNAL");
+
 }

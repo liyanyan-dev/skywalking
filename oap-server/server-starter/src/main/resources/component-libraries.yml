@@ -284,6 +284,9 @@ AFA-WEBSOCKET:
 AFA-SCHEDULE:
   id: 85
   languages: Java
+AFA-INTERNAL:
+  id: 86
+  languages: Java
 
 
 
