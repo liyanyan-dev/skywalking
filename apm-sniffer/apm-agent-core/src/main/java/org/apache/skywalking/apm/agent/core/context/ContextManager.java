@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Agent.OPERATION_NAME_THRESHOLD;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Agent.PRODUCT_TYPE;
 
 /**
  * {@link ContextManager} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
@@ -115,13 +116,20 @@ public class ContextManager implements BootService {
             context = getOrCreate(operationName, false);
             span = context.createEntrySpan(operationName);
         }
+        if (!StringUtil.isEmpty(PRODUCT_TYPE)) {
+            span.tag("product_type",PRODUCT_TYPE);
+        }
         return span;
     }
 
     public static AbstractSpan createLocalSpan(String operationName) {
         operationName = StringUtil.cut(operationName, OPERATION_NAME_THRESHOLD);
         AbstractTracerContext context = getOrCreate(operationName, false);
-        return context.createLocalSpan(operationName);
+        AbstractSpan span = context.createLocalSpan(operationName);
+        if (!StringUtil.isEmpty(PRODUCT_TYPE)) {
+            span.tag("product_type",PRODUCT_TYPE);
+        }
+        return span;
     }
 
     public static AbstractSpan createExitSpan(String operationName, ContextCarrier carrier, String remotePeer) {
@@ -132,6 +140,9 @@ public class ContextManager implements BootService {
         AbstractTracerContext context = getOrCreate(operationName, false);
         AbstractSpan span = context.createExitSpan(operationName, remotePeer);
         context.inject(carrier);
+        if (!StringUtil.isEmpty(PRODUCT_TYPE)) {
+            span.tag("product_type",PRODUCT_TYPE);
+        }
         return span;
     }
 
@@ -139,6 +150,9 @@ public class ContextManager implements BootService {
         operationName = StringUtil.cut(operationName, OPERATION_NAME_THRESHOLD);
         AbstractTracerContext context = getOrCreate(operationName, false);
         AbstractSpan span = context.createExitSpan(operationName, remotePeer);
+        if (!StringUtil.isEmpty(PRODUCT_TYPE)) {
+            span.tag("product_type",PRODUCT_TYPE);
+        }
         return span;
     }
 
@@ -234,7 +248,6 @@ public class ContextManager implements BootService {
             runtimeContext = new RuntimeContext(RUNTIME_CONTEXT);
             RUNTIME_CONTEXT.set(runtimeContext);
         }
-
         return runtimeContext;
     }
 }

@@ -120,6 +120,10 @@ public class Config {
          * segment consum thread max wait time.unit is ms.
          **/
         public static int MAX_WAIT_TIME = 60;
+        /**
+         * product type ,default is empty sting.
+         **/
+        public static String PRODUCT_TYPE = "";
     }
 
     public static class Collector {
