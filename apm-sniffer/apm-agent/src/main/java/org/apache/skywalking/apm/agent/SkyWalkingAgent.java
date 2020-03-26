@@ -92,7 +92,7 @@ public class SkyWalkingAgent {
                     .or(nameStartsWith("org.slf4j."))
                     .or(nameStartsWith("org.groovy."))
                     .or(nameContains("javassist"))
-                    .or(nameContains(".asm."))
+                    .or(nameContains(".asm.").and(not(nameContains("cn.com.agree.asm"))))
                     .or(nameStartsWith("sun.reflect"))
                     .or(allSkyWalkingAgentExcludeToolkit())
                     .or(ElementMatchers.<TypeDescription>isSynthetic()));
