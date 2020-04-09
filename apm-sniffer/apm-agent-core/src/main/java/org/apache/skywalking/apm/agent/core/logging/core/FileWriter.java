@@ -19,6 +19,11 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core;
 
+import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.Constants;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,14 +31,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.Constants;
-import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 /**
  * The <code>FileWriter</code> support async file output, by using a queue as buffer.
@@ -44,7 +45,7 @@ public class FileWriter implements IWriter {
     private static FileWriter INSTANCE;
     private static final Object CREATE_LOCK = new Object();
     private FileOutputStream fileOutputStream;
-    private ArrayBlockingQueue logBuffer;
+    private LinkedBlockingQueue logBuffer;
     private volatile int fileSize;
 
     public static FileWriter get() {
@@ -59,8 +60,8 @@ public class FileWriter implements IWriter {
     }
 
     private FileWriter() {
-        logBuffer = new ArrayBlockingQueue(1024);
-        final ArrayList<String> outputLogs = new ArrayList<String>(200);
+        logBuffer = new LinkedBlockingQueue(1024);
+        final ArrayList<String> outputLogs = new ArrayList<String>(1024);
         Executors
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("LogFileWriter"))
             .scheduleAtFixedRate(new RunnableWithExceptionProtection(new Runnable() {

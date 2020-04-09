@@ -19,12 +19,13 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is the core config in sniffer agent.
@@ -124,6 +125,10 @@ public class Config {
          * product type ,default is empty sting.
          **/
         public static String PRODUCT_TYPE = "";
+        /**
+         * log print duration time(ms).
+         **/
+        public static int LOG_PRINT_DURATION = 10000;
     }
 
     public static class Collector {
